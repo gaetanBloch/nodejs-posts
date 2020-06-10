@@ -21,7 +21,7 @@ const checkPost = (post, postId) => {
 const clearImage = filePath => {
   filePath = path.join(__dirname, '..', filePath);
   fs.unlink(filePath, err => console.log(err));
-}
+};
 
 exports.getPosts = (req, res, next) => {
   Post.find()
@@ -99,6 +99,23 @@ exports.updatePost = (req, res, next) => {
       res.status(200).json({
         message: 'Post updated successfully.',
         post: result
+      });
+    })
+    .catch(err => forwardError(err, next));
+};
+
+exports.deletePost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then(post => {
+      checkPost(post, postId);
+      // Delete the old image
+      clearImage(post.imageUrl);
+      return post.findByIdAndRemove(postId);
+    })
+    .then(() => {
+      res.status(200).json({
+        message: 'Post deleted successfully.'
       });
     })
     .catch(err => forwardError(err, next));
