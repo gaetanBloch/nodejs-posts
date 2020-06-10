@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
+const { forwardError } = require('./utils');
 
 exports.getPosts = (req, res, next) => {
   res.status(200).json({
@@ -44,10 +45,18 @@ exports.createPost = (req, res, next) => {
         message: 'Post created successfully',
         post: result
       });
-    }).catch(err => {
-    if (err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  });
+    }).catch(err => forwardError(err, next));
+};
+
+exports.getPost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then(post => {
+      if (!post) {
+        const error = new Error('Could not find post with id = ' + postId);
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({ message: 'Post successfully fetched', post });
+    }).catch(err => forwardError(err, next));
 };
