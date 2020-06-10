@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const feedRoutes = require('./routes/feed');
 
@@ -11,6 +12,9 @@ const app = express();
 
 // Parse JSON data from incoming requests
 app.use(bodyParser.json());
+
+// Serve static folders
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Set-up CORS authorization from all hosts for all response
 app.use((req, res, next) => {
@@ -28,6 +32,7 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
+// Connect to MongoDB
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
