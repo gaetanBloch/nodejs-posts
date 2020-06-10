@@ -1,7 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const feedRoutes = require('./routes/feed');
+
+const MONGODB_URI = 'mongodb+srv://gbloch:gaetan.bloch@' +
+  'cluster0-hcscb.mongodb.net/shop?retryWrites=true&w=majority';
 
 const app = express();
 
@@ -24,4 +28,12 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
-app.listen(8080);
+mongoose
+  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Successfully connected to MongoDb...');
+    app.listen(8080, () => {
+      console.log('Listening to port 8080...');
+    });
+  })
+  .catch((err) => console.log(err));
