@@ -24,9 +24,25 @@ const clearImage = filePath => {
 };
 
 exports.getPosts = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = 2;
+
+  // Count the number of posts
+  let totalItems;
   Post.find()
+    .countDocuments()
+    .then(count => {
+      totalItems = count;
+      return Post.find()
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage)
+    })
     .then(posts => {
-      res.status(200).json({ message: 'Posts fetched successfully', posts });
+      res.status(200).json({
+        message: 'Posts fetched successfully',
+        posts,
+        totalItems
+      });
     })
     .catch(err => forwardError(err, next));
 };
