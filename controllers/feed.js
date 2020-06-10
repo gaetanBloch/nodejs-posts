@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator');
+const fs = require('fs');
+const path = require('path');
 
 const Post = require('../models/post');
 const { forwardError, throwError } = require('./utils');
 
-const validatePost = (req) => {
+const validatePost = req => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throwError('Validation failed: Entered data is incorrect.', 422);
@@ -15,6 +17,11 @@ const checkPost = (post, postId) => {
     throwError('Could not find post with id = ' + postId + '.', 404);
   }
 };
+
+const clearImage = filePath => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, err => console.log(err));
+}
 
 exports.getPosts = (req, res, next) => {
   Post.find()
@@ -79,6 +86,10 @@ exports.updatePost = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       checkPost(post, postId);
+      // Delete the old image if it has changed
+      if (imageUrl !== post.imageUrl) {
+        clearImage(post.imageUrl);
+      }
       post.title = title;
       post.content = content;
       post.imageUrl = imageUrl;
