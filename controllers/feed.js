@@ -111,7 +111,7 @@ exports.deletePost = (req, res, next) => {
       checkPost(post, postId);
       // Delete the old image
       clearImage(post.imageUrl);
-      return post.findByIdAndRemove(postId);
+      return Post.findByIdAndRemove(postId);
     })
     .then(() => {
       res.status(200).json({
