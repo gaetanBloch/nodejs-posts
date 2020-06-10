@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
-const { forwardError } = require('./utils');
+const { forwardError, throwError } = require('./utils');
 
 exports.getPosts = (req, res, next) => {
   Post.find()
@@ -14,17 +14,20 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed: Entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    throwError('Validation failed: Entered data is incorrect.', 422);
   }
 
+  if (!req.file) {
+    throwError('No image provided.', 422);
+  }
+
+  const imageUrl = req.file.path;
   const title = req.body.title;
   const content = req.body.content;
   const post = new Post({
     title,
     content,
-    imageUrl: 'images/book.png',
+    imageUrl,
     creator: {
       name: 'Gaëtan'
     }
@@ -44,9 +47,7 @@ exports.getPost = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       if (!post) {
-        const error = new Error('Could not find post with id = ' + postId);
-        error.statusCode = 404;
-        throw error;
+        throwError('Could not find post with id = ' + postId + '.', 404);
       }
       res.status(200).json({ message: 'Post fetched successfully ', post });
     }).catch(err => forwardError(err, next));
