@@ -14,7 +14,7 @@ const checkPost = (post, postId) => {
   if (!post) {
     throwError('Could not find post with id = ' + postId + '.', 404);
   }
-}
+};
 
 exports.getPosts = (req, res, next) => {
   Post.find()
@@ -79,6 +79,16 @@ exports.updatePost = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       checkPost(post, postId);
-
-    }).catch(err => forwardError(err, next));
+      post.title = title;
+      post.content = content;
+      post.imageUrl = imageUrl;
+      return post.save();
+    })
+    .then(result => {
+      res.status(200).json({
+        message: 'Post updated successfully.',
+        post: result
+      });
+    })
+    .catch(err => forwardError(err, next));
 };
