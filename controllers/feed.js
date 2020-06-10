@@ -4,20 +4,11 @@ const Post = require('../models/post');
 const { forwardError } = require('./utils');
 
 exports.getPosts = (req, res, next) => {
-  res.status(200).json({
-    posts: [
-      {
-        _id: Date.now(),
-        title: 'First Post',
-        content: 'This is the first post!',
-        imageUrl: 'images/book.png',
-        creator: {
-          name: 'Gaëtan'
-        },
-        createdAt: new Date()
-      }
-    ]
-  });
+  Post.find()
+    .then(posts => {
+      res.status(200).json({ message: 'Posts fetched successfully', posts });
+    })
+    .catch(err => forwardError(err, next));
 };
 
 exports.createPost = (req, res, next) => {
@@ -57,6 +48,6 @@ exports.getPost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      res.status(200).json({ message: 'Post successfully fetched', post });
+      res.status(200).json({ message: 'Post fetched successfully ', post });
     }).catch(err => forwardError(err, next));
 };
