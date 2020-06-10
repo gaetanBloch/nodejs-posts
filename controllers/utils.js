@@ -16,7 +16,7 @@ const throwError = (message, statusCode) => {
 const throwValidationErrors = (message, statusCode, errors) => {
   const error = new Error(message);
   error.statusCode = statusCode;
-  errors.data = errors.array();
+  error.data = errors.array();
   throw error;
 };
 
