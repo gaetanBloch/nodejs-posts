@@ -21,7 +21,7 @@ exports.createPost = (req, res, next) => {
     throwError('No image provided.', 422);
   }
 
-  const imageUrl = req.file.path;
+  const imageUrl = req.file.path.replace("\\", "/");
   const title = req.body.title;
   const content = req.body.content;
   const post = new Post({
