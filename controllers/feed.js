@@ -59,4 +59,16 @@ exports.getPost = (req, res, next) => {
 
 exports.updatePost = (req, res, next) => {
   validatePost(req);
+
+  const postId = req.params.postId;
+  const title = req.body.title;
+  const content = req.body.content;
+  let imageUrl = req.body.image;
+  // In case a new file was picked
+  if (req.file) {
+    imageUrl = req.file.path;
+  }
+  if (!imageUrl) {
+    throwError('No image picked.', 422);
+  }
 };
