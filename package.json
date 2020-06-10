@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/gaetanBloch/nodejs-posts/issues"
   },
-  "homepage": "https://github.com/gaetanBloch/nodejs-posts#readme"
+  "homepage": "https://github.com/gaetanBloch/nodejs-posts#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
