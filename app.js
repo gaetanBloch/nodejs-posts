@@ -31,7 +31,7 @@ app.use('/feed', feedRoutes);
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log('Successfully connected to MongoDb...');
+    console.log('Successfully connected to MongoDb.');
     app.listen(8080, () => {
       console.log('Listening to port 8080...');
     });
