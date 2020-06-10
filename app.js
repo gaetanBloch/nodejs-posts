@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const feedRoutes = require('./routes/feed');
 
 const MONGODB_URI = 'mongodb+srv://gbloch:gaetan.bloch@' +
-  'cluster0-hcscb.mongodb.net/shop?retryWrites=true&w=majority';
+  'cluster0-hcscb.mongodb.net/posts?retryWrites=true&w=majority';
 
 const app = express();
 
