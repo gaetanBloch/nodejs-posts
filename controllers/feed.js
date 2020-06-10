@@ -1,16 +1,8 @@
-const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
 
 const Post = require('../models/post');
-const { forwardError, throwError } = require('./utils');
-
-const validatePost = req => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    throwError('Validation failed: Entered data is incorrect.', 422);
-  }
-};
+const { forwardError, throwError, validate } = require('./utils');
 
 const checkPost = (post, postId) => {
   if (!post) {
@@ -48,7 +40,7 @@ exports.getPosts = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
-  validatePost(req);
+  validate(req);
 
   if (!req.file) {
     throwError('No image provided.', 422);
@@ -85,7 +77,7 @@ exports.getPost = (req, res, next) => {
 };
 
 exports.updatePost = (req, res, next) => {
-  validatePost(req);
+  validate(req);
 
   const postId = req.params.postId;
   const title = req.body.title;
