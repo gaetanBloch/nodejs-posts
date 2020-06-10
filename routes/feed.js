@@ -5,7 +5,7 @@ const feedController = require('../controllers/feed');
 
 const router = express.Router();
 
-const validatePost = () => {
+const postValidation = () => {
   return [
     body('title').trim().isLength({ min: 5 }),
     body('content').trim().isLength({ min: 5 })
@@ -16,12 +16,12 @@ const validatePost = () => {
 router.get('/posts', feedController.getPosts);
 
 // POST /feed/posts
-router.post('/posts', validatePost(), feedController.createPost);
+router.post('/posts', postValidation(), feedController.createPost);
 
 // GET /feed/posts/id
 router.get('/posts/:postId', feedController.getPost);
 
 // PUT /feed/posts/id
-router.put('/posts/:postId', validatePost(), feedController.updatePost);
+router.put('/posts/:postId', postValidation(), feedController.updatePost);
 
 module.exports = router;

@@ -3,6 +3,13 @@ const { validationResult } = require('express-validator');
 const Post = require('../models/post');
 const { forwardError, throwError } = require('./utils');
 
+const validatePost = (req) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throwError('Validation failed: Entered data is incorrect.', 422);
+  }
+}
+
 exports.getPosts = (req, res, next) => {
   Post.find()
     .then(posts => {
@@ -12,10 +19,7 @@ exports.getPosts = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    throwError('Validation failed: Entered data is incorrect.', 422);
-  }
+  validatePost(req);
 
   if (!req.file) {
     throwError('No image provided.', 422);
@@ -51,4 +55,8 @@ exports.getPost = (req, res, next) => {
       }
       res.status(200).json({ message: 'Post fetched successfully ', post });
     }).catch(err => forwardError(err, next));
+};
+
+exports.updatePost = (req, res, next) => {
+  validatePost(req);
 };
