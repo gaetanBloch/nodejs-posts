@@ -8,6 +8,12 @@ const validatePost = (req) => {
   if (!errors.isEmpty()) {
     throwError('Validation failed: Entered data is incorrect.', 422);
   }
+};
+
+const checkPost = (post, postId) => {
+  if (!post) {
+    throwError('Could not find post with id = ' + postId + '.', 404);
+  }
 }
 
 exports.getPosts = (req, res, next) => {
@@ -25,7 +31,7 @@ exports.createPost = (req, res, next) => {
     throwError('No image provided.', 422);
   }
 
-  const imageUrl = req.file.path.replace("\\", "/");
+  const imageUrl = req.file.path.replace('\\', '/');
   const title = req.body.title;
   const content = req.body.content;
   const post = new Post({
@@ -50,9 +56,7 @@ exports.getPost = (req, res, next) => {
   const postId = req.params.postId;
   Post.findById(postId)
     .then(post => {
-      if (!post) {
-        throwError('Could not find post with id = ' + postId + '.', 404);
-      }
+      checkPost(post, postId);
       res.status(200).json({ message: 'Post fetched successfully ', post });
     }).catch(err => forwardError(err, next));
 };
@@ -71,4 +75,10 @@ exports.updatePost = (req, res, next) => {
   if (!imageUrl) {
     throwError('No image picked.', 422);
   }
+
+  Post.findById(postId)
+    .then(post => {
+      checkPost(post, postId);
+
+    }).catch(err => forwardError(err, next));
 };
