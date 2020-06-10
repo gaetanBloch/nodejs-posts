@@ -1,0 +1,19 @@
+{
+  "name": "nodejs-posts",
+  "version": "1.0.0",
+  "description": "Node.js REST Backend For a Posts Application",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaetanBloch/nodejs-posts.git"
+  },
+  "author": "Gaëtan Bloch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gaetanBloch/nodejs-posts/issues"
+  },
+  "homepage": "https://github.com/gaetanBloch/nodejs-posts#readme"
+}
