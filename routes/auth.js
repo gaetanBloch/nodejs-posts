@@ -17,13 +17,16 @@ router.put('/signup',
         return User.findOne({ email: value })
           .then(user => {
             if (user) {
-              return Promise.reject('E-Mail address already in use.')
+              return Promise.reject('E-Mail address already in use.');
             }
           });
       })
       .normalizeEmail(),
-    body('password').trim().isLength({ min: 5}),
+    body('password').trim().isLength({ min: 5 }),
     body('name').trim().not().isEmpty()
   ], authController.signup);
+
+// POST /auth/login
+router.post('/login', authController.login);
 
 module.exports = router;

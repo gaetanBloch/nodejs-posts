@@ -26,3 +26,25 @@ exports.signup = (req, res, next) => {
     })
     .catch(err => forwardError(err));
 };
+
+exports.login = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  let loadedUser;
+
+  User.findOne({ email })
+    .then(user => {
+      if (!user) {
+        throwError('The email address does not belong to any user.', 401);
+      }
+      loadedUser = user
+      return bcrypt.compare(password, user.password);
+    })
+    .then(isEqual => {
+      if (!isEqual) {
+        throwError('The password does not match the email address', 401);
+      }
+
+    })
+    .catch(err => forwardError(err));
+}
