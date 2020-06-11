@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const Post = require('../models/post');
+const User = require('../models/user');
 const { forwardError, throwError, validate } = require('./utils');
 
 const checkPost = (post, postId) => {
@@ -27,7 +28,7 @@ exports.getPosts = (req, res, next) => {
       totalItems = count;
       return Post.find()
         .skip((currentPage - 1) * perPage)
-        .limit(perPage)
+        .limit(perPage);
     })
     .then(posts => {
       res.status(200).json({
@@ -53,16 +54,26 @@ exports.createPost = (req, res, next) => {
     title,
     content,
     imageUrl,
-    creator: {
-      name: 'Gaëtan'
-    }
+    creator: req.userId
   });
 
+  let creator;
+  let createdPost;
   post.save()
     .then(result => {
+      createdPost = result;
+      return User.findById(req.userId);
+    })
+    .then(user => {
+      creator = user;
+      user.posts.push(post);
+      return user.save();
+    })
+    .then(() => {
       res.status(201).json({
         message: 'Post created successfully',
-        post: result
+        post: createdPost,
+        creator: { _id: creator._id, name: creator.name }
       });
     }).catch(err => forwardError(err, next));
 };
