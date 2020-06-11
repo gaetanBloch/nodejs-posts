@@ -3,6 +3,9 @@ const { throwError } = require('../controllers/utils');
 const { TOKEN_SECRET } = require('../constants');
 
 module.exports = (req, res, next) => {
+  if (!req.get('Authorization')) {
+    throwError('Not Authenticated.', 401);
+  }
   const token = req.get('Authorization').split(' ')[1];
   let decodedToken;
   try {
@@ -16,4 +19,4 @@ module.exports = (req, res, next) => {
   }
   req.userId = decodedToken.userId;
   next();
-}
+};
