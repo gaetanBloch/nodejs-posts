@@ -54,5 +54,5 @@ exports.login = (req, res, next) => {
       );
       res.status(200).json({ token, userId: loadedUser._id.toString() });
     })
-    .catch(err => forwardError(err));
+    .catch(err => forwardError(err, next));
 };

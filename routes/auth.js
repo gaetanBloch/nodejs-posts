@@ -20,8 +20,7 @@ router.put('/signup',
               return Promise.reject('E-Mail address already in use.');
             }
           });
-      })
-      .normalizeEmail(),
+      }),
     body('password').trim().isLength({ min: 5 }),
     body('name').trim().not().isEmpty()
   ], authController.signup);
