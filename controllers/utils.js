@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const forwardError = (err, next) => {
-  if (err.statusCode) {
+  if (!err.statusCode) {
     err.statusCode = 500;
   }
   next(err);
@@ -13,9 +13,9 @@ const throwError = (message, statusCode) => {
   throw error;
 };
 
-const throwValidationErrors = (message, statusCode, errors) => {
+const throwValidationErrors = (message, errors) => {
   const error = new Error(message);
-  error.statusCode = statusCode;
+  error.statusCode = 422;
   error.data = errors.array();
   throw error;
 };
@@ -25,7 +25,6 @@ const validate = req => {
   if (!errors.isEmpty()) {
     throwValidationErrors(
       'Validation failed: Entered data is incorrect.',
-      422,
       errors
     );
   }
