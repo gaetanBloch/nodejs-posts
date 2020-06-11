@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { TOKEN_SECRET } = require('../constants');
 
 const { forwardError, throwError, validate } = require('./utils');
 
@@ -49,7 +50,7 @@ exports.login = (req, res, next) => {
           email: loadedUser.email,
           userId: loadedUser._id.toString()
         },
-        'someSuperSecretSecret',
+        TOKEN_SECRET,
         { expiresIn: '1h' }
       );
       res.status(200).json({ token, userId: loadedUser._id.toString() });
