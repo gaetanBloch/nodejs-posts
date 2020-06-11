@@ -16,6 +16,12 @@ const clearImage = filePath => {
   fs.unlink(filePath, err => console.log(err));
 };
 
+const checkAuthorization = (post, req) => {
+  if (post.creator.toString() !== req.userId) {
+    throwError('Not Authorized.', 403);
+  }
+}
+
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 2;
@@ -107,9 +113,7 @@ exports.updatePost = (req, res, next) => {
       checkPost(post, postId);
 
       // check if the user is allowed to update the post
-      if (post.creator.toString() !== req.userId) {
-        throwError('Not Authorized.', 403);
-      }
+      checkAuthorization(post, req);
 
       // Delete the old image if it has changed
       if (imageUrl !== post.imageUrl) {
@@ -136,9 +140,7 @@ exports.deletePost = (req, res, next) => {
       checkPost(post, postId);
 
       // check if the user is allowed to delete the post
-      if (post.creator.toString() !== req.userId) {
-        throwError('Not Authorized.', 403);
-      }
+      checkAuthorization(post, req);
 
       // Delete the old image
       clearImage(post.imageUrl);
