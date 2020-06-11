@@ -105,6 +105,12 @@ exports.updatePost = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       checkPost(post, postId);
+
+      // check if the user is allowed to update the post
+      if (post.creator.toString() !== req.userId) {
+        throwError('Not Authorized.', 403);
+      }
+
       // Delete the old image if it has changed
       if (imageUrl !== post.imageUrl) {
         clearImage(post.imageUrl);
