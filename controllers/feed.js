@@ -134,6 +134,12 @@ exports.deletePost = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       checkPost(post, postId);
+
+      // check if the user is allowed to delete the post
+      if (post.creator.toString() !== req.userId) {
+        throwError('Not Authorized.', 403);
+      }
+
       // Delete the old image
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
