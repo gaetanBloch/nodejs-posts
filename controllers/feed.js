@@ -20,7 +20,7 @@ const checkAuthorization = (post, req) => {
   if (post.creator.toString() !== req.userId) {
     throwError('Not Authorized.', 403);
   }
-}
+};
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -139,12 +139,21 @@ exports.deletePost = (req, res, next) => {
     .then(post => {
       checkPost(post, postId);
 
-      // check if the user is allowed to delete the post
+      // Check if the user is allowed to delete the post
       checkAuthorization(post, req);
 
       // Delete the old image
       clearImage(post.imageUrl);
+
       return Post.findByIdAndRemove(postId);
+    })
+    .then(() => {
+      return User.findById(req.userId);
+    })
+    .then(user => {
+      // Delete the with the post in the user
+      user.posts.pull(postId);
+      return user.save();
     })
     .then(() => {
       res.status(200).json({
