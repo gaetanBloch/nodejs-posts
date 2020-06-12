@@ -28,7 +28,7 @@ exports.getPosts = async (req, res, next) => {
 
   try {
     // Count the number of posts
-    const totalItems = await Post.find().countDocuments()
+    const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
@@ -42,7 +42,7 @@ exports.getPosts = async (req, res, next) => {
   }
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async (req, res, next) => {
   validate(req);
 
   if (!req.file) {
@@ -59,37 +59,33 @@ exports.createPost = (req, res, next) => {
     creator: req.userId
   });
 
-  let creator;
-  let createdPost;
-  post.save()
-    .then(result => {
-      createdPost = result;
-      return User.findById(req.userId);
-    })
-    .then(user => {
-      creator = user;
-      user.posts.push(post);
-      return user.save();
-    })
-    .then(() => {
-      res.status(201).json({
-        message: 'Post created successfully',
-        post: createdPost,
-        creator: { _id: creator._id, name: creator.name }
-      });
-    }).catch(err => forwardError(err, next));
+  try {
+    const createdPost = await post.save();
+    const creator = await User.findById(req.userId);
+    creator.posts.push(post);
+    await creator.save();
+    res.status(201).json({
+      message: 'Post created successfully',
+      post: createdPost,
+      creator: { _id: creator._id, name: creator.name }
+    });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
-exports.getPost = (req, res, next) => {
+exports.getPost = async (req, res, next) => {
   const postId = req.params.postId;
-  Post.findById(postId)
-    .then(post => {
-      checkPost(post, postId);
-      res.status(200).json({ message: 'Post fetched successfully ', post });
-    }).catch(err => forwardError(err, next));
+  try {
+    const post = await Post.findById(postId);
+    checkPost(post, postId);
+    res.status(200).json({ message: 'Post fetched successfully ', post });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
-exports.updatePost = (req, res, next) => {
+exports.updatePost = async (req, res, next) => {
   validate(req);
 
   const postId = req.params.postId;
@@ -104,57 +100,54 @@ exports.updatePost = (req, res, next) => {
     throwError('No image picked.', 422);
   }
 
-  Post.findById(postId)
-    .then(post => {
-      checkPost(post, postId);
+  try {
+    const post = await Post.findById(postId);
+    checkPost(post, postId);
 
-      // check if the user is allowed to update the post
-      checkAuthorization(post, req);
+    // check if the user is allowed to update the post
+    checkAuthorization(post, req);
 
-      // Delete the old image if it has changed
-      if (imageUrl !== post.imageUrl) {
-        clearImage(post.imageUrl);
-      }
-      post.title = title;
-      post.content = content;
-      post.imageUrl = imageUrl;
-      return post.save();
-    })
-    .then(result => {
-      res.status(200).json({
-        message: 'Post updated successfully.',
-        post: result
-      });
-    })
-    .catch(err => forwardError(err, next));
+    // Delete the old image if it has changed
+    if (imageUrl !== post.imageUrl) {
+      clearImage(post.imageUrl);
+    }
+
+    post.title = title;
+    post.content = content;
+    post.imageUrl = imageUrl;
+    const result = await post.save();
+    res.status(200).json({
+      message: 'Post updated successfully.',
+      post: result
+    });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
-exports.deletePost = (req, res, next) => {
+exports.deletePost = async (req, res, next) => {
   const postId = req.params.postId;
-  Post.findById(postId)
-    .then(post => {
-      checkPost(post, postId);
+  try {
+    const post = await Post.findById(postId);
+    checkPost(post, postId);
 
-      // Check if the user is allowed to delete the post
-      checkAuthorization(post, req);
+    // Check if the user is allowed to delete the post
+    checkAuthorization(post, req);
 
-      // Delete the old image
-      clearImage(post.imageUrl);
+    // Delete the old image
+    clearImage(post.imageUrl);
 
-      return Post.findByIdAndRemove(postId);
-    })
-    .then(() => {
-      return User.findById(req.userId);
-    })
-    .then(user => {
-      // Delete the with the post in the user
-      user.posts.pull(postId);
-      return user.save();
-    })
-    .then(() => {
-      res.status(200).json({
-        message: 'Post deleted successfully.'
-      });
-    })
-    .catch(err => forwardError(err, next));
+    await Post.findByIdAndRemove(postId);
+    const user = await User.findById(req.userId);
+
+    // Delete the post within the user
+    user.posts.pull(postId);
+    await user.save();
+
+    res.status(200).json({
+      message: 'Post deleted successfully.'
+    });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
