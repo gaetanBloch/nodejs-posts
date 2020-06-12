@@ -57,3 +57,19 @@ exports.login = (req, res, next) => {
     })
     .catch(err => forwardError(err, next));
 };
+
+exports.getUserStatus = (req, res, next) => {
+  const userId = req.params.userId;
+  User.findById(userId)
+    .then(user => {
+      if (!user) {
+        throwError('The user could not be found for id = ' + userId);
+      }
+
+      res.status(200).json({
+        message: 'Status fetched successfully ',
+        status: user.status
+      });
+    }).catch(err => forwardError(err, next));
+};
+
