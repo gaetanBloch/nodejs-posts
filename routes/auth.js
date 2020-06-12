@@ -32,4 +32,7 @@ router.post('/login', authController.login);
 // GET /users/id/status
 router.get('/users/:userId/status', isAuth, authController.getUserStatus);
 
+// PUT /users/id/status
+router.put('/users/:userId/status', isAuth, authController.updateUserStatus);
+
 module.exports = router;
