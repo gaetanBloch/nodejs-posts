@@ -9,92 +9,87 @@ const checkUser = (user, userId) => {
   if (!user) {
     throwError('The user could not be found for id = ' + userId);
   }
-}
+};
 
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res, next) => {
   validate(req);
 
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
-  bcrypt.hash(password, 12)
-    .then(hashedPassword => {
-      const user = new User({
-        email,
-        password: hashedPassword,
-        name
-      });
-      return user.save();
-    })
-    .then(result => {
-      res.status(201).json({
-        message: 'User created successfully.',
-        userId: result._id
-      });
-    })
-    .catch(err => forwardError(err));
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = new User({
+      email,
+      password: hashedPassword,
+      name
+    });
+    const savedUser = await user.save();
+    res.status(201).json({
+      message: 'User created successfully.',
+      userId: savedUser._id
+    });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  let loadedUser;
-
-  User.findOne({ email })
-    .then(user => {
-      if (!user) {
-        throwError('The email address does not belong to any user.', 401);
-      }
-      loadedUser = user;
-      return bcrypt.compare(password, user.password);
-    })
-    .then(isEqual => {
-      if (!isEqual) {
-        throwError('The password does not match the email address', 401);
-      }
-      const token = jwt.sign({
-          email: loadedUser.email,
-          userId: loadedUser._id.toString()
-        },
-        TOKEN_SECRET,
-        { expiresIn: '1h' }
-      );
-      res.status(200).json({ token, userId: loadedUser._id.toString() });
-    })
-    .catch(err => forwardError(err, next));
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throwError('The email address does not belong to any user.', 401);
+    }
+    const isEqual = await bcrypt.compare(password, user.password);
+    if (!isEqual) {
+      throwError('The password does not match the email address', 401);
+    }
+    const token = jwt.sign({
+        email: user.email,
+        userId: user._id.toString()
+      },
+      TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+    res.status(200).json({ token, userId: user._id.toString() });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
-exports.getUserStatus = (req, res, next) => {
+exports.getUserStatus = async (req, res, next) => {
   const userId = req.userId;
-  User.findById(userId)
-    .then(user => {
-      checkUser(user, userId);
-
-      res.status(200).json({
-        message: 'Status fetched successfully ',
-        status: user.status
-      });
-    }).catch(err => forwardError(err, next));
+  try {
+    const user = await User.findById(userId);
+    checkUser(user, userId);
+    res.status(200).json({
+      message: 'Status fetched successfully ',
+      status: user.status
+    });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
-exports.updateUserStatus = (req, res, next) => {
+exports.updateUserStatus = async (req, res, next) => {
   validate(req);
 
   const userId = req.userId;
   const status = req.body.status;
-
-  User.findById(userId)
-    .then(user => {
-      checkUser(user, userId);
-      user.status = status;
-      return user.save();
-    })
-    .then(result => {
-      res.status(200).json({
-        message: 'User status updated successfully.',
-        status: result.status
-      });
-    })
-    .catch(err => forwardError(err, next));
+  try {
+    const user = await User.findById(userId);
+    checkUser(user, userId);
+    user.status = status;
+    const result = await user.save();
+    res.status(200).json({
+      message: 'User status updated successfully.',
+      status: result.status
+    });
+  } catch (err) {
+    forwardError(err, next);
+  }
 };
 
