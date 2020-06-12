@@ -5,6 +5,12 @@ const { TOKEN_SECRET } = require('../constants');
 
 const { forwardError, throwError, validate } = require('./utils');
 
+const checkUser = (user, userId) => {
+  if (!user) {
+    throwError('The user could not be found for id = ' + userId);
+  }
+}
+
 exports.signup = (req, res, next) => {
   validate(req);
 
@@ -62,14 +68,31 @@ exports.getUserStatus = (req, res, next) => {
   const userId = req.params.userId;
   User.findById(userId)
     .then(user => {
-      if (!user) {
-        throwError('The user could not be found for id = ' + userId);
-      }
+      checkUser(user, userId);
 
       res.status(200).json({
         message: 'Status fetched successfully ',
         status: user.status
       });
     }).catch(err => forwardError(err, next));
+};
+
+exports.updateUserStatus = (req, res, next) => {
+  const userId = req.params.userId;
+  const status = req.body.status;
+
+  User.findById(userId)
+    .then(user => {
+      checkUser(user, userId);
+      user.status = status;
+      return user.save();
+    })
+    .then(result => {
+      res.status(200).json({
+        message: 'User status updated successfully.',
+        status: result.status
+      });
+    })
+    .catch(err => forwardError(err, next));
 };
 
