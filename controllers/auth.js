@@ -65,7 +65,7 @@ exports.login = (req, res, next) => {
 };
 
 exports.getUserStatus = (req, res, next) => {
-  const userId = req.params.userId;
+  const userId = req.userId;
   User.findById(userId)
     .then(user => {
       checkUser(user, userId);
