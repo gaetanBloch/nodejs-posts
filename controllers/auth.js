@@ -78,7 +78,7 @@ exports.getUserStatus = (req, res, next) => {
 };
 
 exports.updateUserStatus = (req, res, next) => {
-  const userId = req.params.userId;
+  const userId = req.userId;
   const status = req.body.status;
 
   User.findById(userId)
