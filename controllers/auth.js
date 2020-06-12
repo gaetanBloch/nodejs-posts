@@ -78,6 +78,8 @@ exports.getUserStatus = (req, res, next) => {
 };
 
 exports.updateUserStatus = (req, res, next) => {
+  validate(req);
+
   const userId = req.userId;
   const status = req.body.status;
 

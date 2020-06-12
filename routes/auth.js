@@ -23,7 +23,7 @@ router.put('/signup',
           });
       }),
     body('password').trim().isLength({ min: 5 }),
-    body('name').trim().not().isEmpty()
+    body('name').trim().notEmpty()
   ], authController.signup);
 
 // POST /auth/login
@@ -33,6 +33,9 @@ router.post('/login', authController.login);
 router.get('/status', isAuth, authController.getUserStatus);
 
 // PUT /users/id/status
-router.patch('/status', isAuth, authController.updateUserStatus);
+router.patch('/status',
+  isAuth, [
+  body('status').trim().notEmpty()
+], authController.updateUserStatus);
 
 module.exports = router;
