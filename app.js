@@ -1,14 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const path = require('path');
 const multer = require('multer');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
-
-const MONGODB_URI = 'mongodb+srv://gbloch:gaetan.bloch@' +
-  'cluster0-hcscb.mongodb.net/posts?retryWrites=true&w=majority';
 
 const app = express();
 
@@ -68,14 +64,4 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message, data });
 });
 
-// Connect to MongoDB
-mongoose
-  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Successfully connected to MongoDb.');
-    const port = process.env.PORT || 8080;
-    app.listen(port, () => {
-      console.log(`Listening to port ${port}...`);
-    });
-  })
-  .catch((err) => console.log(err));
+module.exports = app;
