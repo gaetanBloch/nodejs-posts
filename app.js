@@ -46,7 +46,7 @@ app.use((req, res, next) => {
   );
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type, Authorization'
+    'Origin, X-requested-With, Content-Type, Authorization'
   );
   next();
 });
