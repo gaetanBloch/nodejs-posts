@@ -73,8 +73,9 @@ mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Successfully connected to MongoDb.');
-    app.listen(8080, () => {
-      console.log('Listening to port 8080...');
+    const port = process.env.PORT || 8080;
+    app.listen(port, () => {
+      console.log(`Listening to port ${port}...`);
     });
   })
   .catch((err) => console.log(err));
