@@ -3,16 +3,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { TOKEN_SECRET } = require('../constants');
 
-const { forwardError, throwError, validate } = require('./utils');
+const { forwardError, validate } = require('./utils');
 
-const checkUser = (user, userId) => {
+const checkUser = (user, userId, next) => {
   if (!user) {
-    throwError('The user could not be found for id = ' + userId);
+    forwardError('The user could not be found for id = ' + userId, next, 404);
   }
 };
 
 exports.signup = async (req, res, next) => {
-  validate(req);
+  validate(req, next);
 
   const email = req.body.email;
   const password = req.body.password;
@@ -41,11 +41,11 @@ exports.login = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      throwError('The email address does not belong to any user.', 401);
+      forwardError('The email address does not belong to any user.', next, 401);
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      throwError('The password does not match the email address', 401);
+      forwardError('The password does not match the email address', next, 401);
     }
     const token = jwt.sign({
         email: user.email,
@@ -64,7 +64,7 @@ exports.getUserStatus = async (req, res, next) => {
   const userId = req.userId;
   try {
     const user = await User.findById(userId);
-    checkUser(user, userId);
+    checkUser(user, userId, next);
     res.status(200).json({
       message: 'Status fetched successfully ',
       status: user.status
@@ -75,13 +75,13 @@ exports.getUserStatus = async (req, res, next) => {
 };
 
 exports.updateUserStatus = async (req, res, next) => {
-  validate(req);
+  validate(req, next);
 
   const userId = req.userId;
   const status = req.body.status;
   try {
     const user = await User.findById(userId);
-    checkUser(user, userId);
+    checkUser(user, userId, next);
     user.status = status;
     const result = await user.save();
     res.status(200).json({

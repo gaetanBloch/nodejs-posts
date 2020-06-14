@@ -3,11 +3,11 @@ const path = require('path');
 
 const Post = require('../models/post');
 const User = require('../models/user');
-const { forwardError, throwError, validate } = require('./utils');
+const { forwardError, validate } = require('./utils');
 
-const checkPost = (post, postId) => {
+const checkPost = (post, postId, next) => {
   if (!post) {
-    throwError('Could not find post with id = ' + postId + '.', 404);
+    forwardError('Could not find post with id = ' + postId + '.', next, 404);
   }
 };
 
@@ -16,9 +16,9 @@ const clearImage = filePath => {
   fs.unlink(filePath, err => console.log(err));
 };
 
-const checkAuthorization = (post, req) => {
+const checkAuthorization = (post, req, next) => {
   if (post.creator.toString() !== req.userId) {
-    throwError('Not Authorized.', 403);
+    forwardError('Not Authorized.', next,403);
   }
 };
 
@@ -28,7 +28,7 @@ exports.getPosts = async (req, res, next) => {
 
   try {
     // Count the number of posts
-    const totalItems = await Post.count();
+    const totalItems = await Post.countDocuments();
     const posts = await Post.find()
       .populate('creator')
       .skip((currentPage - 1) * pageSize)
@@ -44,10 +44,10 @@ exports.getPosts = async (req, res, next) => {
 };
 
 exports.createPost = async (req, res, next) => {
-  validate(req);
+  validate(req, next);
 
   if (!req.file) {
-    throwError('No image provided.', 422);
+    forwardError('No image provided.', next, 422);
   }
 
   const imageUrl = req.file.path.replace('\\', '/');
@@ -79,7 +79,7 @@ exports.getPost = async (req, res, next) => {
   const postId = req.params.postId;
   try {
     const post = await Post.findById(postId);
-    checkPost(post, postId);
+    checkPost(post, postId, next);
     res.status(200).json({ message: 'Post fetched successfully ', post });
   } catch (err) {
     forwardError(err, next);
@@ -87,7 +87,7 @@ exports.getPost = async (req, res, next) => {
 };
 
 exports.updatePost = async (req, res, next) => {
-  validate(req);
+  validate(req, next);
 
   const postId = req.params.postId;
   const title = req.body.title;
@@ -98,15 +98,15 @@ exports.updatePost = async (req, res, next) => {
     imageUrl = req.file.path;
   }
   if (!imageUrl) {
-    throwError('No image picked.', 422);
+    forwardError('No image picked.', next,422);
   }
 
   try {
     const post = await Post.findById(postId);
-    checkPost(post, postId);
+    checkPost(post, postId, next);
 
     // check if the user is allowed to update the post
-    checkAuthorization(post, req);
+    checkAuthorization(post, req, next);
 
     // Delete the old image if it has changed
     if (imageUrl !== post.imageUrl) {
@@ -130,10 +130,10 @@ exports.deletePost = async (req, res, next) => {
   const postId = req.params.postId;
   try {
     const post = await Post.findById(postId);
-    checkPost(post, postId);
+    checkPost(post, postId, next);
 
     // Check if the user is allowed to delete the post
-    checkAuthorization(post, req);
+    checkAuthorization(post, req, next);
 
     // Delete the old image
     clearImage(post.imageUrl);
