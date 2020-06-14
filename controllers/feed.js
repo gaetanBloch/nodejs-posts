@@ -23,16 +23,16 @@ const checkAuthorization = (post, req) => {
 };
 
 exports.getPosts = async (req, res, next) => {
-  const currentPage = req.query.page || 1;
-  const perPage = 2;
+  const currentPage = +req.query.page || 1;
+  const pageSize = +req.query.pagesize || 2;
 
   try {
     // Count the number of posts
-    const totalItems = await Post.find().countDocuments();
+    const totalItems = await Post.count();
     const posts = await Post.find()
       .populate('creator')
-      .skip((currentPage - 1) * perPage)
-      .limit(perPage);
+      .skip((currentPage - 1) * pageSize)
+      .limit(pageSize);
     res.status(200).json({
       message: 'Posts fetched successfully',
       posts,
