@@ -8,13 +8,21 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpg': 'jpg',
+  'image/jpeg': 'jpg',
+}
+
 // Multer Configurations
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'images');
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' +  file.originalname);
+    const name = file.originalname.toLowerCase().split(' ').join('');
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, Date.now() + '-' + name + '.' + ext);
   }
 });
 const fileFilter = (req, file, cb) => {
@@ -25,7 +33,7 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(null, false);
   }
-}
+};
 
 // Parse JSON data from incoming requests
 app.use(bodyParser.json());
