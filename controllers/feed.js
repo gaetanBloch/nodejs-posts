@@ -7,7 +7,11 @@ const { forwardError, validate } = require('./utils');
 
 const checkPost = (post, postId, next) => {
   if (!post) {
-    forwardError('Could not find post with id = ' + postId + '.', next, 404);
+    return forwardError(
+      'Could not find post with id = ' + postId + '.',
+      next,
+      404
+    );
   }
 };
 
@@ -18,7 +22,7 @@ const clearImage = filePath => {
 
 const checkAuthorization = (post, req, next) => {
   if (post.creator.toString() !== req.userId) {
-    forwardError('Not Authorized.', next,403);
+    return forwardError('Not Authorized.', next,403);
   }
 };
 
@@ -47,7 +51,7 @@ exports.createPost = async (req, res, next) => {
   validate(req, next);
 
   if (!req.file) {
-    forwardError('No image provided.', next, 422);
+    return forwardError('No image provided.', next, 422);
   }
 
   const imageUrl = req.file.path.replace('\\', '/');
@@ -98,7 +102,7 @@ exports.updatePost = async (req, res, next) => {
     imageUrl = req.file.path;
   }
   if (!imageUrl) {
-    forwardError('No image picked.', next,422);
+    return forwardError('No image picked.', next,422);
   }
 
   try {

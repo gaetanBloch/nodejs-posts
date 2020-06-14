@@ -7,7 +7,11 @@ const { forwardError, validate } = require('./utils');
 
 const checkUser = (user, userId, next) => {
   if (!user) {
-    forwardError('The user could not be found for id = ' + userId, next, 404);
+    return forwardError(
+      'The user could not be found for id = ' + userId,
+      next,
+      404
+    );
   }
 };
 
@@ -41,11 +45,19 @@ exports.login = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      forwardError('The email address does not belong to any user.', next, 401);
+      return forwardError(
+        'The email address does not belong to any user.',
+        next,
+        401
+      );
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      forwardError('The password does not match the email address', next, 401);
+      return forwardError(
+        'The password does not match the email address',
+        next,
+        401
+      );
     }
     const token = jwt.sign({
         email: user.email,

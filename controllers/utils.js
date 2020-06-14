@@ -31,12 +31,6 @@ const validate = (req, next) => {
       errors,
       next
     );
-  } else {
-    forwardError(
-      'Validation failed: Entered data is incorrect.',
-      next,
-      422
-    );
   }
 };
 
