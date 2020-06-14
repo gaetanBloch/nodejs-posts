@@ -14,13 +14,13 @@ const postValidation = () => {
 };
 
 // GET /feed/posts
-router.get('/posts', isAuth, feedController.getPosts);
+router.get('/posts', feedController.getPosts);
 
 // POST /feed/posts
-router.post('/posts', isAuth, postValidation(), feedController.createPost);
+router.post('/posts', postValidation(), feedController.createPost);
 
 // GET /feed/posts/id
-router.get('/posts/:postId', isAuth, feedController.getPost);
+router.get('/posts/:postId', feedController.getPost);
 
 // PUT /feed/posts/id
 router.put('/posts/:postId', isAuth, postValidation(), feedController.updatePost);
