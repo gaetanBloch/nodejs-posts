@@ -97,9 +97,12 @@ exports.updatePost = async (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   let imageUrl = req.body.image;
+  let newFile = false;
+
   // In case a new file was picked
   if (req.file) {
-    imageUrl = req.file.path;
+    imageUrl = req.file.path.replace('\\', '/');
+    newFile = true;
   }
   if (!imageUrl) {
     return forwardError('No image picked.', next,422);
@@ -113,13 +116,13 @@ exports.updatePost = async (req, res, next) => {
     checkAuthorization(post, req, next);
 
     // Delete the old image if it has changed
-    if (imageUrl !== post.imageUrl) {
+    if (!imageUrl.includes(post.imageUrl)) {
       clearImage(post.imageUrl);
     }
 
     post.title = title;
     post.content = content;
-    post.imageUrl = imageUrl;
+    post.imageUrl = newFile ? imageUrl : post.imageUrl;
     const result = await post.save();
     res.status(200).json({
       message: 'Post updated successfully.',
