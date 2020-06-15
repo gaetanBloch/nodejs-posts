@@ -1,0 +1,6 @@
+{
+  "env": {
+    "MONGO_ATLAS_PWD": "gaetan.bloch",
+    "JWT_SECRET_KEY": "someSuperSecretSecret"
+  }
+}

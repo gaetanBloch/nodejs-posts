@@ -3,8 +3,7 @@ const debug = require('debug')('nodejs-posts');
 const http = require('http');
 const mongoose = require('mongoose');
 
-const MONGODB_URI = 'mongodb+srv://gbloch:gaetan.bloch@' +
-  'cluster0-hcscb.mongodb.net/posts?retryWrites=true&w=majority';
+const MONGODB_URI = `mongodb+srv://gbloch:${process.env.MONGO_ATLAS_PWD}@cluster0-hcscb.mongodb.net/posts?retryWrites=true&w=majority`;
 
 const normalizePort = val => {
   let port = parseInt(val, 10);

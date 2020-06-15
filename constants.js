@@ -1,3 +1,3 @@
-const TOKEN_SECRET = 'someSuperSecretSecret';
+const TOKEN_SECRET = process.env.JWT_SECRET_KEY;
 
 exports.TOKEN_SECRET = TOKEN_SECRET;
