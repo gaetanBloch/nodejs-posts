@@ -2,9 +2,8 @@
   "name": "nodejs-posts",
   "version": "1.0.0",
   "description": "Node.js REST Backend For a Posts Application",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
     "debug": "nodemon --inspect server.js"
   },
