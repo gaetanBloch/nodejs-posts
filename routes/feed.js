@@ -14,7 +14,7 @@ const postValidation = () => {
 };
 
 // GET /feed/posts
-router.get('/posts', isAuth, feedController.getPosts);
+router.get('/posts', feedController.getPosts);
 
 // POST /feed/posts
 router.post('/posts', isAuth, postValidation(), feedController.createPost);
