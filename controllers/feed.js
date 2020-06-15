@@ -5,25 +5,9 @@ const Post = require('../models/post');
 const User = require('../models/user');
 const { forwardError, validate } = require('./utils');
 
-const checkPost = (post, postId, next) => {
-  if (!post) {
-    return forwardError(
-      'Could not find post with id = ' + postId + '.',
-      next,
-      404
-    );
-  }
-};
-
 const clearImage = filePath => {
   filePath = path.join(__dirname, '..', filePath);
   fs.unlink(filePath, err => console.log(err));
-};
-
-const checkAuthorization = (post, req, next) => {
-  if (post.creator.toString() !== req.userId) {
-    return forwardError('Not Authorized.', next,403);
-  }
 };
 
 exports.getPosts = async (req, res, next) => {
@@ -83,7 +67,13 @@ exports.getPost = async (req, res, next) => {
   const postId = req.params.postId;
   try {
     const post = await Post.findById(postId);
-    checkPost(post, postId, next);
+    if (!post) {
+      return forwardError(
+        'Could not find post with id = ' + postId + '.',
+        next,
+        404
+      );
+    }
     res.status(200).json({ message: 'Post fetched successfully ', post });
   } catch (err) {
     forwardError(err, next);
@@ -110,10 +100,18 @@ exports.updatePost = async (req, res, next) => {
 
   try {
     const post = await Post.findById(postId);
-    checkPost(post, postId, next);
+    if (!post) {
+      return forwardError(
+        'Could not find post with id = ' + postId + '.',
+        next,
+        404
+      );
+    }
 
     // check if the user is allowed to update the post
-    checkAuthorization(post, req, next);
+    if (post.creator.toString() !== req.userId) {
+      return forwardError('Not Authorized.', next,403);
+    }
 
     // Delete the old image if it has changed
     if (!imageUrl.includes(post.imageUrl)) {
@@ -137,10 +135,18 @@ exports.deletePost = async (req, res, next) => {
   const postId = req.params.postId;
   try {
     const post = await Post.findById(postId);
-    checkPost(post, postId, next);
+    if (!post) {
+      return forwardError(
+        'Could not find post with id = ' + postId + '.',
+        next,
+        404
+      );
+    }
 
     // Check if the user is allowed to delete the post
-    checkAuthorization(post, req, next);
+    if (post.creator.toString() !== req.userId) {
+      return forwardError('Not Authorized.', next,403);
+    }
 
     // Delete the old image
     clearImage(post.imageUrl);
