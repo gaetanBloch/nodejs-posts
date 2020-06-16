@@ -7,7 +7,11 @@ const { forwardError, validate } = require('./utils');
 
 const clearImage = filePath => {
   filePath = path.join(__dirname, '..', filePath);
-  fs.unlink(filePath, err => console.log(err));
+  fs.unlink(filePath, err => {
+    if (err) {
+      console.log(err);
+    }
+  });
 };
 
 exports.getPosts = async (req, res, next) => {
@@ -95,7 +99,7 @@ exports.updatePost = async (req, res, next) => {
     newFile = true;
   }
   if (!imageUrl) {
-    return forwardError('No image picked.', next,422);
+    return forwardError('No image picked.', next, 422);
   }
 
   try {
@@ -110,7 +114,7 @@ exports.updatePost = async (req, res, next) => {
 
     // check if the user is allowed to update the post
     if (post.creator.toString() !== req.userId) {
-      return forwardError('Not Authorized.', next,403);
+      return forwardError('Not Authorized.', next, 403);
     }
 
     // Delete the old image if it has changed
@@ -145,7 +149,7 @@ exports.deletePost = async (req, res, next) => {
 
     // Check if the user is allowed to delete the post
     if (post.creator.toString() !== req.userId) {
-      return forwardError('Not Authorized.', next,403);
+      return forwardError('Not Authorized.', next, 403);
     }
 
     // Delete the old image
