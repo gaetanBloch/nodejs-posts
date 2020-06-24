@@ -114,7 +114,7 @@ exports.updatePost = async (req, res, next) => {
   }
 
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('creator');
     if (!post) {
       return forwardError(
         'Could not find post with id = ' + postId + '.',
@@ -137,6 +137,10 @@ exports.updatePost = async (req, res, next) => {
     post.content = content;
     post.imageUrl = newFile ? imageUrl : post.imageUrl;
     const result = await post.save();
+
+    // Emit the updated post to all connected clients
+    io.getIO().emit('posts', { action: 'update', post: result });
+    
     res.status(200).json({
       message: 'Post updated successfully.',
       post: result
