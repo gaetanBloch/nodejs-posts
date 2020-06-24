@@ -124,7 +124,7 @@ exports.updatePost = async (req, res, next) => {
     }
 
     // check if the user is allowed to update the post
-    if (post.creator.toString() !== req.userId) {
+    if (post.creator._id.toString() !== req.userId) {
       return forwardError('Not Authorized.', next, 403);
     }
 
