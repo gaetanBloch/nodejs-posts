@@ -61,7 +61,12 @@ exports.createPost = async (req, res, next) => {
     await creator.save();
 
     // Emit the newly created post to all connected clients
-    io.getIO().emit('posts', { action: 'create', post });
+    io.getIO().emit('posts', {
+      action: 'create', post: {
+        ...post._doc,
+        creator: { _id: creator._id, name: creator.name }
+      }
+    });
 
     res.status(201).json({
       message: 'Post created successfully',
