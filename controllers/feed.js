@@ -25,6 +25,8 @@ exports.getPosts = async (req, res, next) => {
     const totalItems = await Post.countDocuments();
     const posts = await Post.find()
       .populate('creator')
+      // Sort by createdAt in descending order
+      .sort({ createdAt: -1 })
       .skip((currentPage - 1) * pageSize)
       .limit(pageSize);
     res.status(200).json({
@@ -140,7 +142,7 @@ exports.updatePost = async (req, res, next) => {
 
     // Emit the updated post to all connected clients
     io.getIO().emit('posts', { action: 'update', post: result });
-    
+
     res.status(200).json({
       message: 'Post updated successfully.',
       post: result
