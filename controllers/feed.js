@@ -179,6 +179,9 @@ exports.deletePost = async (req, res, next) => {
     user.posts.pull(postId);
     await user.save();
 
+    // Emit the deleted post to all connected clients
+    io.getIO().emit('posts', { action: 'delete', post: postId });
+
     res.status(200).json({
       message: 'Post deleted successfully.'
     });
